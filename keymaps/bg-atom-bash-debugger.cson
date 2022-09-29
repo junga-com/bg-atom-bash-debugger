@@ -1,0 +1,5 @@
+'.platform-linux atom-workspace':
+  'f5':   'bg-atom-bash-debugger:stepInto'
+  'f6':   'bg-atom-bash-debugger:stepOver'
+  'f7':   'bg-atom-bash-debugger:stepOut'
+  'f9':   'bg-atom-bash-debugger:resume'

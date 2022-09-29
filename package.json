@@ -1,0 +1,30 @@
+{
+    "name": "bg-atom-bash-debugger",
+    "main": "esmToCjsPkgBridge.js",
+    "module": "./lib/bg-atom-bash-debugger",
+    "version": "0.1.0",
+    "description": "TODO: short description",
+    "keywords": [
+        "TODO:"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TODO:/bg-atom-bash-debugger"
+    },
+    "author": "Robert E. Griffith <36312888+bobjunga@users.noreply.github.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "TODO:"
+    },
+    "homepage": "TODO:",
+    "dependencies": {
+        "bg-atom-utils": "^2.2.2",
+        "bg-dom": "^2.3.7",
+        "esm": "^3.2.25",
+        "json5": "^2.1.1",
+        "mkfifo": "^2.1.0"
+    },
+    "engines": {
+        "atom": ">=1.0.0 <2.0.0"
+    }
+}
