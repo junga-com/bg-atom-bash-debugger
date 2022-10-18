@@ -3,3 +3,46 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
+
+table.bgStack {
+//	background: rgb(200,200,250);
+	display: flow-root;
+	overflow: scroll;
+	border-collapse: collapse;
+	//border: 2px solid #774F38;
+	td, th {
+		border-top: 1px solid rgb(200,200,200);
+		border-right: 1px solid rgb(200,200,200);
+		padding-left: 0.5em;
+		padding-right: 1.5em;
+	}
+	td.location, th.location {
+		text-align: right;
+	}
+	.selected {
+		background: rgb(200,200,250);
+	}
+}
+
+table.bgVars {
+//	background: rgb(200,200,250);
+	display: flow-root;
+	overflow: scroll;
+	border-collapse: collapse;
+	//border: 2px solid #774F38;
+	td, th {
+		border-top: 1px solid rgb(200,200,200);
+		border-right: 1px solid rgb(200,200,200);
+		padding-left: 0.5em;
+		padding-right: 1.5em;
+	}
+	td.location, th.location {
+		text-align: right;
+	}
+}
+
+div.pstree {
+	margin-top: 1em;
+	background: rgb(200,200,250);
+	font-family: monospace;
+}
