@@ -501,15 +501,21 @@ class CmdDynStructPrinter:
 		self.cmdTypeStr = cmdTypeStr
 
 	def to_string(self):
-		return '<{}>'.format(self.cmdTypeStr)
+		try:
+			self.cmdSummary = CmdDynStruct_getSummaryText(self.val, self.cmdTypeStr);
+		except:
+			self.cmdSummary = "<error: evaluating command summary>"
+		bgtrace("self.cmdSummary='{}'".format(self.cmdSummary))
+		return "'{}'".format(self.cmdSummary)
 
 	def children(self):
-		try:
-			cmdSummary = CmdDynStruct_getSummaryText(self.val, self.cmdTypeStr);
-			return [ ("cmd",cmdSummary), ("flags",self.val['flags']), ("line",self.val['line'])]
-		except:
-			bgtrace("CmdDynStructPrinter::children(): caught exception", traceback.format_exc())
-
+		children = []
+		for field in self.val.type.fields():
+			try:
+				children.append( (field.name, self.val[field.name]) );
+			except Exception as e:
+				children.append( (field.name, '<error: {}>'.format(str(e))) );
+		return children
 
 
 class PointerPrinter:
@@ -620,20 +626,20 @@ def isAgdbBashMatch(val):
 	if type == 'SHELL_VAR':    return ShellVarPrinter(val)
 	if type == 'COMMAND':      return CommandPrinter(val)
 
-	if type == 'FOR_COM':      return CmdDynStructPrinter(val,FOR_COM)
-	if type == 'CASE_COM':     return CmdDynStructPrinter(val,CASE_COM)
-	if type == 'WHILE_COM':    return CmdDynStructPrinter(val,WHILE_COM)
-	if type == 'IF_COM':       return CmdDynStructPrinter(val,IF_COM)
-	if type == 'SIMPLE_COM':   return CmdDynStructPrinter(val,SIMPLE_COM)
-	if type == 'SELECT_COM':   return CmdDynStructPrinter(val,SELECT_COM)
-	if type == 'CONNECTION':   return CmdDynStructPrinter(val,CONNECTION)
-	if type == 'FUNCTION_DEF': return CmdDynStructPrinter(val,FUNCTION_DEF)
-	if type == 'GROUP_COM':    return CmdDynStructPrinter(val,GROUP_COM)
-	if type == 'ARITH_COM':    return CmdDynStructPrinter(val,ARITH_COM)
-	if type == 'COND_COM':     return CmdDynStructPrinter(val,COND_COM)
-	if type == 'ARITH_FOR_COM':return CmdDynStructPrinter(val,ARITH_FOR_COM)
-	if type == 'SUBSHELL_COM': return CmdDynStructPrinter(val,SUBSHELL_COM)
-	if type == 'COPROC_COM':   return CmdDynStructPrinter(val,COPROC_COM)
+	if type == 'FOR_COM':      return CmdDynStructPrinter(val,'FOR_COM')
+	if type == 'CASE_COM':     return CmdDynStructPrinter(val,'CASE_COM')
+	if type == 'WHILE_COM':    return CmdDynStructPrinter(val,'WHILE_COM')
+	if type == 'IF_COM':       return CmdDynStructPrinter(val,'IF_COM')
+	if type == 'SIMPLE_COM':   return CmdDynStructPrinter(val,'SIMPLE_COM')
+	if type == 'SELECT_COM':   return CmdDynStructPrinter(val,'SELECT_COM')
+	if type == 'CONNECTION':   return CmdDynStructPrinter(val,'CONNECTION')
+	if type == 'FUNCTION_DEF': return CmdDynStructPrinter(val,'FUNCTION_DEF')
+	if type == 'GROUP_COM':    return CmdDynStructPrinter(val,'GROUP_COM')
+	if type == 'ARITH_COM':    return CmdDynStructPrinter(val,'ARITH_COM')
+	if type == 'COND_COM':     return CmdDynStructPrinter(val,'COND_COM')
+	if type == 'ARITH_FOR_COM':return CmdDynStructPrinter(val,'ARITH_FOR_COM')
+	if type == 'SUBSHELL_COM': return CmdDynStructPrinter(val,'SUBSHELL_COM')
+	if type == 'COPROC_COM':   return CmdDynStructPrinter(val,'COPROC_COM')
 
 	return None;
 
@@ -689,7 +695,8 @@ class BashFrameDecorator(FrameDecorator):
 				try:
 					vars.append(SymValueWrapper("GBL:"+sym.name,sym.value()))
 				except Exception as e:
-					bgtrace("   FrmDec:frame_locals: skipped '"+sym.name+"' error="+str(e), traceback.format_exc())
+					vars.append(SymValueWrapper("GBL:"+sym.name,"<error: "+str(e)+">"))
+					#bgtrace("   FrmDec:frame_locals: skipped '"+sym.name+"' error="+str(e), traceback.format_exc())
 
 
 		# Add an example of a synthetic local variable.
@@ -786,5 +793,29 @@ class Param_bgFrameFilters(gdb.Parameter):
 		self.show_doc = "(my show doc)"
 
 bgFrameFilters = Param_bgFrameFilters()
+
+# gdb.MICommand was introduced in gdb 12 in commit 740b42ceb7c7ae7b5343183782973576a93bc7b3
+# class stepOutToFrmNum(gdb.MICommand):
+# 	def __init__(self):
+# 		super(stepOutToFrmNum, self).__init__("-bg-run-to-stack-frame")
+#
+# 	def invoke(self, argv):
+#		pass
+
+# class MyFinishBreakpoint (gdb.FinishBreakpoint)
+# 	def stop (self):
+# 		print ("normal finish")
+# 		return True
+#
+# 	def out_of_scope ():
+# 		print ("abnormal finish")
+
+def stepOutToFrmNum(frmNum):
+	frm = gdb.newest_frame()
+	for i in range(frmNum):
+		frm = frm.older()
+	fbp = gdb.FinishBreakpoint(frm, True);
+	gdb.execute("continue")
+
 
 bgFrmItr = BashFrameIterator()
